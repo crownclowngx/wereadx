@@ -7,6 +7,7 @@ import {web_book_read} from "../apis/web/book.ts";
 import {friend_ranking} from "../apis/app/friend.ts";
 import {ErrCode} from "../apis/err-code.ts";
 import {web_login_renewal} from "../apis/web/login.ts";
+import {pauseReadTask} from "../kv/task.ts";
 
 
 /**
@@ -20,7 +21,13 @@ export async function runReadTask(_: Request) {
     const tasks = await taskManager.getAllReadingTask()
     const readerToken = await taskManager.getReaderToken() || ''
 
+    let taskRunCount = 0
     for (const task of tasks) {
+        if (!task.isActive) {
+            continue
+        }
+        taskRunCount++
+
         const taskStartTime = Date.now()
 
         // 准备这个任务的相关参数
@@ -35,6 +42,8 @@ export async function runReadTask(_: Request) {
             if (!refreshCookieSuccess) {
                 // 刷新失败，就没必要执行下去了
                 console.log(`cookie刷新失败，跳过任务(${task.credential.name}:${task.credential.vid}:${task.book.title})`)
+                await pauseReadTask(task)
+                // todo: 发送通知
                 continue
             }
             // 刷新之后获取最新的 cookie
@@ -91,7 +100,7 @@ export async function runReadTask(_: Request) {
         await taskManager.updateReadingTask(credential, totalSeconds)
     }
 
-    console.log(`全部任务(${tasks.length})执行完毕，耗时: %c${((Date.now() - start) / 1000).toFixed(1)}s`, 'color: red; font-weight: bold;')
+    console.log(`全部任务(${taskRunCount}/${tasks.length})执行完毕，耗时: %c${((Date.now() - start) / 1000).toFixed(1)}s`, 'color: red; font-weight: bold;')
     return jsonResponse({code: ResponseCode.Success, msg: '阅读任务执行完成'})
 }
 

@@ -88,6 +88,14 @@ export function uuid() {
     return uuidv4()
 }
 
+export function formatDate(date) {
+    return new Intl.DateTimeFormat("zh-CN", {
+        dateStyle: "short",
+        timeStyle: "medium",
+        timeZone: "Asia/Shanghai",
+    }).format(date);
+}
+
 export function transformChaptersToToc(chapters) {
     const toc = [];
     const stack = [];
@@ -113,4 +121,10 @@ export function transformChaptersToToc(chapters) {
     }
 
     return toc;
+}
+
+export function sleep(duration) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, duration)
+    })
 }

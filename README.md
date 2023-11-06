@@ -5,9 +5,12 @@
 ## 声明
 **本软件只能下载用户可访问的书籍，不支持下载需付费才能查看的书籍，请勿用于非法用途！本软件作者不对滥用行为承担任何赔偿责任。**
 
+## ⚠️警告⚠️
+**不要同时下载多本书，不但容易下载失败，还可能导致被微信读书封号处理！！！**
+
 ## 功能列表
 
-1. 下载书架上的书到本地，目前仅支持下载 **html** 和 **epub** 格式(后续会支持azw3)
+1. 下载书架上的书到本地，仅支持下载 **html** 和 **epub** 格式
 2. 自动更新阅读时长，可用于刷“读书排行榜”或者“阅读挑战赛”
 3. 每周日晚 23:30 自动领取“时长兑福利”中的免费体验卡(暂未对外开放)
 4. 支持下载用户自己上传的 pdf 格式的书
@@ -40,12 +43,34 @@ yarn dev
 ### 2. 新建 Deno Deploy 项目，配置如下:
 ![项目配置](assets/setup.png)
 
-### 3. 部署完成，在 Deno Deploy 的设置页面，添加环境变量 (可选)
+### 3. 部署完成，在 Deno Deploy 的设置页面，添加环境变量 (推荐)
 ![环境变量配置](assets/env.png)
+
+#### DEPLOY_DOMAIN
+
+> 环境变量说明:
+>
+> 最终部署的域名，格式为: `https://xxx.deno.dev`，与邮箱绑定有关
+>
+
+#### RESEND_API_KEY
+
+> 环境变量说明:
+>
+> 用于发送邮件，与邮箱绑定有关
+>
+
+<details>
+<summary>获取 RESEND_API_KEY</summary>
+
+todo
+</details>
+
+#### DATABASE_URL
 
 > 环境变量说明:
 > 
-> 目前只需要配置一个环境变量: `DATABASE_URL`，作用是为了在下载成功之后记录一下书籍下载记录，相关代码可以在`src/kv/download.ts`中查看。
+> 作用是为了在下载成功之后记录一下书籍下载记录，相关代码可以在`src/kv/download.ts`中查看。
 >
 
 <details>
@@ -77,7 +102,7 @@ yarn dev
 export default {
     async scheduled(event, env, ctx) {
         // 注意：此处的域名替换成你自己部署的域名
-        const resp = await fetch('https://weread.deno.dev/cron/read/v2')
+        const resp = await fetch('https://[your.domain.com]/cron/read/v2')
         console.log(await resp.text())
     },
 };
@@ -91,7 +116,7 @@ worker代码如下：
 export default {
     async scheduled(event, env, ctx) {
         // 注意：此处的域名替换成你自己部署的域名
-        const resp = await fetch('https://weread.deno.dev/cron/exchange-awards')
+        const resp = await fetch('https://[your.domain.com]/cron/exchange-awards')
         console.log(await resp.text())
     },
 };
@@ -118,9 +143,9 @@ export default {
 
 ## 后续计划
 
+- 解决 issue 中的 bug 及提出的优化点；
 - 优化网站样式；
-- 添加更多微信读书API，比如导出自己的笔记；
-- 支持下载 azw3 电子书格式，[可以关注这个issue。](https://github.com/champkeh/wereadx/issues/2)
+- 导出书籍中的的笔记/划线；
 
 
 ## Stargazers over time
